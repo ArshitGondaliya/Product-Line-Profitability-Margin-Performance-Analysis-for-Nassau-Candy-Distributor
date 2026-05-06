@@ -1,7 +1,5 @@
-# =============================
 # 🚀 NASSAU CANDY - PROFITABILITY & MARGIN ANALYSIS DASHBOARD
 # Product Line Profitability & Margin Performance Analysis
-# =============================
 
 import pandas as pd
 import numpy as np
@@ -12,18 +10,14 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 from datetime import datetime, timedelta
 
-# =============================
 # PAGE CONFIG
-# =============================
 st.set_page_config(
     page_title="Nassau Candy Profitability Dashboard",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# =============================
 # UI STYLE
-# =============================
 st.markdown("""
 <style>
 .main {
@@ -49,9 +43,7 @@ h1, h2, h3 { color: #ffffff; font-weight: bold; }
 </style>
 """, unsafe_allow_html=True)
 
-# =============================
 # LOAD DATA
-# =============================
 @st.cache_data
 def load_data():
     return pd.read_csv("Nassau Candy Distributor.csv")
@@ -62,9 +54,7 @@ except:
     st.error("❌ Dataset not found! Keep CSV in same folder")
     st.stop()
 
-# =============================
 # DATE PARSING FIX
-# =============================
 if 'Order Date' in df.columns:
     df['Order Date'] = pd.to_datetime(
         df['Order Date'].astype(str).str.strip(),
@@ -81,9 +71,7 @@ if 'Order Date' in df.columns:
 
 df = df.dropna(subset=['Order Date'])
 
-# =============================
 # DATA CLEANING & FEATURE ENGINEERING
-# =============================
 df = df[df['Sales'] > 0]
 df = df.dropna(subset=['Units', 'Cost'])
 df['Gross Profit'] = pd.to_numeric(df['Gross Profit'], errors='coerce')
@@ -94,12 +82,9 @@ df['Margin %'] = np.where(df['Sales'] > 0, (df['Gross Profit'] / df['Sales']) * 
 df['Profit per Unit'] = np.where(df['Units'] > 0, df['Gross Profit'] / df['Units'], 0)
 df['Cost per Unit'] = np.where(df['Units'] > 0, df['Cost'] / df['Units'], 0)
 
-# =============================
 # SIDEBAR FILTERS
-# =============================
 st.sidebar.title("🔍 Advanced Filters")
 
-# Date filter
 if 'Order Date' in df.columns:
     min_date = df['Order Date'].min()
     max_date = df['Order Date'].max()
@@ -136,16 +121,12 @@ product_search = st.sidebar.text_input("🔎 Search Product Name")
 if product_search:
     df_filtered = df_filtered[df_filtered['Product Name'].str.contains(product_search, case=False, na=False)]
 
-# =============================
 # HEADER & TITLE
-# =============================
 st.markdown("# 🍬 Nassau Candy Profitability & Margin Analysis")
 st.markdown("**Comprehensive Product Line Performance Dashboard**")
 st.markdown("---")
 
-# =============================
 # SECTION 1: KEY METRICS (KPIs)
-# =============================
 st.subheader("📊 Executive Summary - Key Performance Indicators")
 
 col1, col2, col3, col4, col5 = st.columns(5)
@@ -172,9 +153,8 @@ with col5:
 
 st.markdown("---")
 
-# =============================
+
 # SECTION 2: PRODUCT PROFITABILITY ANALYSIS
-# =============================
 st.subheader("🎯 Product-Level Profitability Leaderboard")
 
 col_left, col_right = st.columns(2)
@@ -224,9 +204,8 @@ with col_right:
 
 st.markdown("---")
 
-# =============================
 # SECTION 3: RISK ANALYSIS - HIGH SALES / LOW MARGIN
-# =============================
+
 st.subheader("⚠️ Margin Risk Alert - High Sales with Low Margins")
 
 risk_products = df_filtered.groupby('Product Name').agg({
@@ -279,9 +258,7 @@ else:
 
 st.markdown("---")
 
-# =============================
 # SECTION 4: DIVISION-LEVEL ANALYSIS
-# =============================
 st.subheader("🏢 Division Performance Analysis")
 
 division_perf = df_filtered.groupby('Division').agg({
@@ -344,9 +321,7 @@ st.dataframe(
 
 st.markdown("---")
 
-# =============================
 # SECTION 5: PARETO ANALYSIS (80/20)
-# =============================
 st.subheader("📈 Profit Concentration Analysis (Pareto - 80/20 Rule)")
 
 product_contrib = df_filtered.groupby('Product Name').agg({
@@ -406,9 +381,7 @@ with col_pareto2:
 
 st.markdown("---")
 
-# =============================
 # SECTION 6: COST STRUCTURE & MARGIN DIAGNOSTICS
-# =============================
 st.subheader("🔍 Cost Structure & Margin Diagnostics")
 
 col_cost1, col_cost2 = st.columns(2)
@@ -463,9 +436,7 @@ st.dataframe(
 
 st.markdown("---")
 
-# =============================
 # SECTION 7: TIME SERIES ANALYSIS
-# =============================
 st.subheader("📉 Profitability Trends Over Time")
 
 # Monthly aggregation
@@ -505,9 +476,7 @@ with col_trend2:
 
 st.markdown("---")
 
-# =============================
 # SECTION 8: PREDICTIVE ANALYTICS
-# =============================
 st.subheader("🤖 Profit Prediction Model")
 
 model_df = df_filtered[['Cost', 'Units', 'Sales', 'Gross Profit']].dropna()
@@ -553,9 +522,7 @@ else:
 
 st.markdown("---")
 
-# =============================
 # SECTION 9: DATA EXPORT
-# =============================
 st.subheader("📥 Data Export & Download")
 
 # Prepare summary reports
@@ -576,27 +543,4 @@ st.download_button(
     file_name=f"Nassau_Candy_Summary_{datetime.now().strftime('%Y%m%d')}.csv",
     mime="text/csv"
 )
-
-st.markdown("---")
-
-# =============================
-# FOOTER
-# =============================
-st.markdown("""
----
-### 📝 Project Information
-**Nassau Candy Distributor - Product Line Profitability & Margin Performance Analysis**
-
-This dashboard provides comprehensive insights into:
-- Product-level profitability metrics
-- Division performance analysis  
-- Margin risk identification
-- Cost structure diagnostics
-- Profit concentration analysis (Pareto)
-- Trend analysis and predictive modeling
-
-**Data Last Updated**: Processing your uploaded dataset
-**Dashboard Version**: 2.0 - Full Analysis Suite
-""")
-
-st.markdown("✅ **Dashboard Ready for Submission**")
+#End of app.py
