@@ -99,3 +99,30 @@ if product_search:
 st.markdown("# 🍬 Nassau Candy Profitability & Margin Analysis")
 st.markdown("**Comprehensive Product Line Performance Dashboard**")
 st.markdown("---")
+
+# Section 1 : Key Metriccs KPIs
+st.subheader("📊 Executive Summary - Key Performance Indicators")
+
+col1, col2, col3, col4, col5 = st.columns(5)
+
+with col1:
+    total_sales = df_filtered['Sales'].sum()
+    st.metric("💰 Total Sales", f"${total_sales:,.0f}")
+
+with col2:
+    total_profit = df_filtered['Gross Profit'].sum()
+    st.metric("📈 Total Profit", f"${total_profit:,.0f}")
+
+with col3:
+    avg_margin = df_filtered['Margin %'].mean()
+    st.metric("📊 Avg Margin %", f"{avg_margin:.2f}%")
+
+with col4:
+    total_units = df_filtered['Units'].sum()
+    st.metric("📦 Units Sold", f"{total_units:,.0f}")
+
+with col5:
+    profit_per_unit_avg = df_filtered['Profit per Unit'].mean()
+    st.metric("💵 Profit/Unit", f"${profit_per_unit_avg:.2f}")
+
+st.markdown("---")
