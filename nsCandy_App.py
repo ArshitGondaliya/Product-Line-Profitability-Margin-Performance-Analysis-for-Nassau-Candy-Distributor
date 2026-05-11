@@ -126,3 +126,53 @@ with col5:
     st.metric("💵 Profit/Unit", f"${profit_per_unit_avg:.2f}")
 
 st.markdown("---")
+
+# SECTION 2: PRODUCT PROFITABILITY ANALYSIS
+st.subheader("🎯 Product-Level Profitability Leaderboard")
+
+col_left, col_right = st.columns(2)
+
+with col_left:
+    st.markdown("**Top 10 Products by Gross Profit**")
+    top_profit = df_filtered.groupby('Product Name').agg({
+        'Gross Profit': 'sum',
+        'Sales': 'sum',
+        'Units': 'sum',
+        'Margin %': 'mean'
+    }).reset_index().sort_values(by='Gross Profit', ascending=False).head(10)
+    
+    fig_profit = px.bar(
+        top_profit,
+        x='Gross Profit',
+        y='Product Name',
+        orientation='h',
+        title='Top 10 Products by Profit',
+        color='Gross Profit',
+        color_continuous_scale='Greens',
+        labels={'Gross Profit': 'Profit ($)', 'Product Name': 'Product'}
+    )
+    fig_profit.update_layout(height=400, showlegend=False)
+    st.plotly_chart(fig_profit, use_container_width=True)
+
+with col_right:
+    st.markdown("**Top 10 Products by Gross Margin %**")
+    top_margin = df_filtered.groupby('Product Name').agg({
+        'Margin %': 'mean',
+        'Gross Profit': 'sum',
+        'Sales': 'sum'
+    }).reset_index().sort_values(by='Margin %', ascending=False).head(10)
+    
+    fig_margin = px.bar(
+        top_margin,
+        x='Margin %',
+        y='Product Name',
+        orientation='h',
+        title='Top 10 Products by Margin %',
+        color='Margin %',
+        color_continuous_scale='Blues',
+        labels={'Margin %': 'Margin (%)', 'Product Name': 'Product'}
+    )
+    fig_margin.update_layout(height=400, showlegend=False)
+    st.plotly_chart(fig_margin, use_container_width=True)
+
+st.markdown("---")
