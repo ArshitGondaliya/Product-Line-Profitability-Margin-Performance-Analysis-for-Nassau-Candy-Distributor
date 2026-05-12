@@ -176,3 +176,56 @@ with col_right:
     st.plotly_chart(fig_margin, use_container_width=True)
 
 st.markdown("---")
+
+#Section-3 : Risk Analysis - High Sales / Low Margin Products
+st.subheader("⚠️ Margin Risk Alert - High Sales with Low Margins")
+
+risk_products = df_filtered.groupby('Product Name').agg({
+    'Sales': 'sum',
+    'Margin %': 'mean',
+    'Gross Profit': 'sum',
+    'Units': 'sum'
+}).reset_index()
+
+# Flag products with high sales but low margin
+risk_threshold_margin = df_filtered['Margin %'].quantile(0.25)
+risk_threshold_sales = df_filtered['Sales'].quantile(0.75)
+
+at_risk = risk_products[
+    (risk_products['Sales'] > risk_threshold_sales) & 
+    (risk_products['Margin %'] < risk_threshold_margin)
+].sort_values('Sales', ascending=False)
+
+if len(at_risk) > 0:
+    st.warning(f"⚠️ **{len(at_risk)} products** have high sales but low margins - review pricing strategy!")
+    
+    col_risk_left, col_risk_right = st.columns(2)
+    with col_risk_left:
+        fig_risk = px.scatter(
+            risk_products,
+            x='Sales',
+            y='Margin %',
+            size='Gross Profit',
+            color='Margin %',
+            hover_name='Product Name',
+            color_continuous_scale='RdYlGn',
+            title='Sales vs Margin % - Risk Matrix'
+        )
+        fig_risk.add_hline(y=risk_threshold_margin, line_dash="dash", line_color="red", annotation_text="Low Margin Threshold")
+        fig_risk.add_vline(x=risk_threshold_sales, line_dash="dash", line_color="red", annotation_text="High Sales Threshold")
+        st.plotly_chart(fig_risk, use_container_width=True)
+    
+    with col_risk_right:
+        st.markdown("**At-Risk Products (High Sales, Low Margin)**")
+        st.dataframe(
+            at_risk[['Product Name', 'Sales', 'Margin %', 'Gross Profit']].style.format({
+                'Sales': '${:,.2f}',
+                'Margin %': '{:.2f}%',
+                'Gross Profit': '${:,.2f}'
+            }),
+            use_container_width=True
+        )
+else:
+    st.success("✅ No high-risk products detected!")
+
+st.markdown("---")
