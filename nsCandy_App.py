@@ -15,6 +15,31 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 #=UI Style Designing
+st.markdown("""
+<style>
+.main {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #ffffff;
+}
+h1, h2, h3 { color: #ffffff; font-weight: bold; }
+.metric-card { 
+    background: rgba(255,255,255,0.1);
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid #ffc107;
+}
+.profit-high { color: #28a745; font-weight: bold; }
+.margin-low { color: #dc3545; font-weight: bold; }
+.metric-value { font-size: 24px; color: #ffc107; }
+.insight-box {
+    background: rgba(255,255,255,0.05);
+    padding: 12px;
+    border-radius: 8px;
+    margin: 8px 0;
+}
+</style>
+""", unsafe_allow_html=True)
+
 #=== Load the dataset ===
 @st.cache_data
 def load_data():
