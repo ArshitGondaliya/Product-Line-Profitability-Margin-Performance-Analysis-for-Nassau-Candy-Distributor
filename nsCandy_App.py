@@ -407,3 +407,43 @@ st.dataframe(
 )
 
 st.markdown("---")
+
+#Section-7 : Time Series Analysis
+st.subheader("📉 Profitability Trends Over Time")
+
+# Monthly aggregation
+df_time = df_filtered.copy()
+df_time['YearMonth'] = df_time['Order Date'].dt.to_period('M')
+monthly_trend = df_time.groupby('YearMonth').agg({
+    'Sales': 'sum',
+    'Gross Profit': 'sum',
+    'Margin %': 'mean'
+}).reset_index()
+monthly_trend['YearMonth'] = monthly_trend['YearMonth'].astype(str)
+
+col_trend1, col_trend2 = st.columns(2)
+
+with col_trend1:
+    fig_trend_sales = px.line(
+        monthly_trend,
+        x='YearMonth',
+        y='Sales',
+        title='Sales Trend',
+        markers=True
+    )
+    fig_trend_sales.update_layout(height=350)
+    st.plotly_chart(fig_trend_sales, use_container_width=True)
+
+with col_trend2:
+    fig_trend_profit = px.line(
+        monthly_trend,
+        x='YearMonth',
+        y='Gross Profit',
+        title='Profit Trend',
+        markers=True
+    )
+    fig_trend_profit.update_traces(line=dict(color='green'))
+    fig_trend_profit.update_layout(height=350)
+    st.plotly_chart(fig_trend_profit, use_container_width=True)
+
+st.markdown("---")
