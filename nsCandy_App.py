@@ -229,3 +229,66 @@ else:
     st.success("✅ No high-risk products detected!")
 
 st.markdown("---")
+
+# Section-4 : Division-Level Analysis
+st.subheader("🏢 Division Performance Analysis")
+
+division_perf = df_filtered.groupby('Division').agg({
+    'Sales': 'sum',
+    'Gross Profit': 'sum',
+    'Margin %': 'mean',
+    'Profit per Unit': 'mean',
+    'Units': 'sum'
+}).reset_index().sort_values('Gross Profit', ascending=False)
+
+col_div1, col_div2, col_div3 = st.columns(3)
+
+with col_div1:
+    fig_div_sales = px.bar(
+        division_perf,
+        x='Division',
+        y='Sales',
+        title='Sales by Division',
+        color='Sales',
+        color_continuous_scale='Blues'
+    )
+    fig_div_sales.update_layout(height=350)
+    st.plotly_chart(fig_div_sales, use_container_width=True)
+
+with col_div2:
+    fig_div_profit = px.bar(
+        division_perf,
+        x='Division',
+        y='Gross Profit',
+        title='Profit by Division',
+        color='Gross Profit',
+        color_continuous_scale='Greens'
+    )
+    fig_div_profit.update_layout(height=350)
+    st.plotly_chart(fig_div_profit, use_container_width=True)
+
+with col_div3:
+    fig_div_margin = px.bar(
+        division_perf,
+        x='Division',
+        y='Margin %',
+        title='Avg Margin % by Division',
+        color='Margin %',
+        color_continuous_scale='Oranges'
+    )
+    fig_div_margin.update_layout(height=350)
+    st.plotly_chart(fig_div_margin, use_container_width=True)
+
+# Division comparison table
+st.markdown("**Division Performance Metrics Table**")
+st.dataframe(
+    division_perf.style.format({
+        'Sales': '${:,.2f}',
+        'Gross Profit': '${:,.2f}',
+        'Margin %': '{:.2f}%',
+        'Profit per Unit': '${:.2f}'
+    }).highlight_max(subset=['Gross Profit'], color='lightgreen').highlight_min(subset=['Margin %'], color='lightcoral'),
+    use_container_width=True
+)
+
+st.markdown("---")
