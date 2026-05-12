@@ -292,3 +292,118 @@ st.dataframe(
 )
 
 st.markdown("---")
+
+#Section-5 : Pareto Analysis - 80/20 Rule
+st.subheader("📈 Profit Concentration Analysis (Pareto - 80/20 Rule)")
+
+product_contrib = df_filtered.groupby('Product Name').agg({
+    'Gross Profit': 'sum',
+    'Sales': 'sum'
+}).reset_index().sort_values('Gross Profit', ascending=False)
+
+product_contrib['Profit %'] = (product_contrib['Gross Profit'] / product_contrib['Gross Profit'].sum()) * 100
+product_contrib['Cumulative %'] = product_contrib['Profit %'].cumsum()
+
+# Find 80% threshold
+products_for_80 = len(product_contrib[product_contrib['Cumulative %'] <= 80])
+total_products = len(product_contrib)
+pareto_pct = (products_for_80 / total_products) * 100
+
+col_pareto1, col_pareto2 = st.columns(2)
+
+with col_pareto1:
+    fig_pareto = go.Figure()
+    fig_pareto.add_trace(go.Bar(
+        x=product_contrib.head(15)['Product Name'],
+        y=product_contrib.head(15)['Profit %'],
+        name='Profit %',
+        marker_color='steelblue'
+    ))
+    fig_pareto.add_trace(go.Scatter(
+        x=product_contrib.head(15)['Product Name'],
+        y=product_contrib.head(15)['Cumulative %'],
+        name='Cumulative %',
+        yaxis='y2',
+        line=dict(color='red', width=3),
+        mode='lines+markers'
+    ))
+    fig_pareto.update_layout(
+        title='Pareto Analysis - Top 15 Products',
+        xaxis_title='Product Name',
+        yaxis_title='Individual Profit %',
+        yaxis2=dict(overlaying='y', side='right', title='Cumulative %'),
+        height=400,
+        hovermode='x unified'
+    )
+    st.plotly_chart(fig_pareto, use_container_width=True)
+
+with col_pareto2:
+    st.markdown(f"""
+    ### 🎯 Pareto Insights
+    
+    - **{products_for_80} products** ({pareto_pct:.1f}% of product line) generate **80% of profit**
+    - Total unique products: **{total_products}**
+    - Profit concentration: **High dependency on limited SKUs**
+    
+    #### Recommendation:
+    - Focus marketing & operational efforts on top {products_for_80} products
+    - Review ROI on remaining {total_products - products_for_80} products
+    - Consider discontinuing low-contribution SKUs
+    """)
+
+st.markdown("---")
+
+# Section-6 : Cost Structure & Margin Diagnostics
+st.subheader("🔍 Cost Structure & Margin Diagnostics")
+
+col_cost1, col_cost2 = st.columns(2)
+
+with col_cost1:
+    fig_cost_scatter = px.scatter(
+        df_filtered,
+        x='Cost',
+        y='Margin %',
+        color='Division',
+        size='Profit per Unit',
+        hover_name='Product Name',
+        title='Cost vs Margin % - Diagnostic View',
+        labels={'Cost': 'Cost ($)', 'Margin %': 'Margin (%)'}
+    )
+    fig_cost_scatter.update_layout(height=400)
+    st.plotly_chart(fig_cost_scatter, use_container_width=True)
+
+with col_cost2:
+    fig_profit_unit = px.scatter(
+        df_filtered,
+        x='Cost per Unit',
+        y='Profit per Unit',
+        color='Margin %',
+        size='Sales',
+        hover_name='Product Name',
+        color_continuous_scale='RdYlGn',
+        title='Cost/Unit vs Profit/Unit'
+    )
+    fig_profit_unit.update_layout(height=400)
+    st.plotly_chart(fig_profit_unit, use_container_width=True)
+
+# Cost efficiency table
+st.markdown("**Cost Efficiency Analysis**")
+cost_analysis = df_filtered.groupby('Product Name').agg({
+    'Cost': 'mean',
+    'Sales': 'mean',
+    'Margin %': 'mean',
+    'Profit per Unit': 'mean'
+}).reset_index().sort_values('Margin %', ascending=True).head(10)
+
+st.warning("**Products with Lowest Margins (Potential repricing/renegotiation needed):**")
+st.dataframe(
+    cost_analysis.style.format({
+        'Cost': '${:,.2f}',
+        'Sales': '${:,.2f}',
+        'Margin %': '{:.2f}%',
+        'Profit per Unit': '${:.2f}'
+    }).highlight_min(subset=['Margin %'], color='salmon'),
+    use_container_width=True
+)
+
+st.markdown("---")
