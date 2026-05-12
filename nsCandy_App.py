@@ -447,3 +447,50 @@ with col_trend2:
     st.plotly_chart(fig_trend_profit, use_container_width=True)
 
 st.markdown("---")
+
+# Section-8 : Predictive Analysis
+
+st.subheader("🤖 Profit Prediction Model")
+
+model_df = df_filtered[['Cost', 'Units', 'Sales', 'Gross Profit']].dropna()
+
+if len(model_df) > 10:
+    X = model_df[['Cost', 'Units', 'Sales']]
+    y = model_df['Gross Profit']
+    
+    model = LinearRegression()
+    model.fit(X, y)
+    y_pred = model.predict(X)
+    r2 = r2_score(y, y_pred)
+    
+    col_pred1, col_pred2 = st.columns(2)
+    
+    with col_pred1:
+        st.markdown(f"**Model Performance (R² Score): {r2:.4f}**")
+        
+        col_input1, col_input2, col_input3 = st.columns(3)
+        with col_input1:
+            cost_input = st.number_input("Cost ($)", value=100.0, min_value=0.0)
+        with col_input2:
+            units_input = st.number_input("Units", value=10, min_value=1)
+        with col_input3:
+            sales_input = st.number_input("Sales ($)", value=200.0, min_value=0.0)
+        
+        if cost_input > 0 and sales_input > 0:
+            prediction = model.predict([[cost_input, units_input, sales_input]])
+            st.success(f"**Predicted Gross Profit: ${prediction[0]:.2f}**")
+    
+    with col_pred2:
+        fig_actual_pred = px.scatter(
+            x=y,
+            y=y_pred,
+            labels={'x': 'Actual Profit', 'y': 'Predicted Profit'},
+            title='Actual vs Predicted Profit',
+            trendline='ols'
+        )
+        fig_actual_pred.update_layout(height=300)
+        st.plotly_chart(fig_actual_pred, use_container_width=True)
+else:
+    st.info("Not enough data for predictive modeling")
+
+st.markdown("---")
